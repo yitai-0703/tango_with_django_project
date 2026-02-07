@@ -1,5 +1,5 @@
 {% extends 'rango/base.html' %}
-{% load staticfiles %}
+{% load static %}
 
 {% block title_block %}
     {% if category %}
@@ -15,18 +15,21 @@
 
         {% if pages %}
             <ul>
-                {% for p in pages %}
-                    <li>
-                        <a href="{{ p.url }}">{{ p.title }}</a> ({{ p.views }} views)
-                    </li>
-                {% endfor %}
+            {% for p in pages %}
+                <li>
+                    <a href="{% url 'rango:goto' %}?page_id={{ p.id }}">{{ p.title }}</a> ({{ p.views }} views)
+                </li>
+            {% endfor %}
             </ul>
         {% else %}
             <strong>No pages currently in category.</strong>
         {% endif %}
+
         
-        <p><a href="{% url 'rango:add_page' category.slug %}">Add a New Page</a></p>
-        
+        <p>
+            <a href="{% url 'rango:add_page' category.slug %}">Add a New Page</a>
+        </p>
+
     {% else %}
         <strong>The specified category does not exist!</strong>
     {% endif %}

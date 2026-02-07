@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from rango.forms import CategoryForm, PageForm
 from rango.models import Category, Page
-
+from django.http import HttpResponseRedirect
 
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
@@ -69,4 +69,20 @@ def add_page(request, category_name_slug):
 
     context_dict = {'form': form, 'category': category}
     return render(request, 'rango/add_page.html', context=context_dict)
+
+
+def goto(request):
+    page_id = request.GET.get('page_id')
+
+    if page_id:
+        try:
+            page = Page.objects.get(id=page_id)
+            page.views = page.views + 1
+            page.save()
+            return redirect(page.url)
+        except Page.DoesNotExist:
+            pass
+
+    return redirect('/rango/')
+
 
