@@ -1,6 +1,10 @@
 from django import forms
 from rango.models import Category, Page
 
+from django.contrib.auth.models import User
+from rango.models import UserProfile
+
+
 
 class CategoryForm(forms.ModelForm):
     name = forms.CharField(max_length=128, help_text="Please enter the category name.")
@@ -28,7 +32,7 @@ class PageForm(forms.ModelForm):
         cleaned_data = super().clean()
         url = cleaned_data.get('url')
 
-        # If url is not empty and doesn't start with http:// or https://, add http://
+       
         if url and not (url.startswith('http://') or url.startswith('https://')):
             cleaned_data['url'] = 'http://' + url
 
@@ -41,3 +45,16 @@ class PageForm(forms.ModelForm):
             url = 'https://' + url
 
         return url
+
+class UserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput())
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password')
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ('website', 'picture')
