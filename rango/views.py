@@ -11,6 +11,8 @@ from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
+
 
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
@@ -18,6 +20,10 @@ def index(request):
     return render(request, 'rango/index.html', context=context_dict)
 
 def about(request):
+    if request.session.test_cookie_worked():
+        print("TEST COOKIE WORKED!")
+        request.session.delete_test_cookie()
+
     return render(request, 'rango/about.html')
 
 @login_required
@@ -152,5 +158,29 @@ def restricted(request):
     return HttpResponse("Since you're logged in, you can see this text!")
 
 
+def index(request):
+   
+    context_dict = {}
+
+    
+    visits = request.session.get('visits', 1)
+
+    last_visit = request.session.get('last_visit')
+    if last_visit:
+        
+        last_visit_time = datetime.strptime(last_visit, '%Y-%m-%d %H:%M:%S')
+        
+        if (datetime.now() - last_visit_time).seconds > 0:
+            visits += 1
+            request.session['visits'] = visits
+            request.session['last_visit'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        request.session['visits'] = visits
+        request.session['last_visit'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    context_dict['visits'] = visits
+   
+    request.session.set_test_cookie()
+    return render(request, 'rango/index.html', context=context_dict)
 
 
