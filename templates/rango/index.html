@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-{% load staticfiles %}
+{% load static %}
+
 
 <html>
 <head>
@@ -19,7 +20,10 @@
         <img src="/static/images/rango.jpg" alt="Picture of Rango" />
     </div>
 
+    <a href="/rango/add_category/">Add a New Category</a><br />
+
     <h2>Most Liked Categories</h2>
+
     <ul>
     {% if categories %}
         {% for c in categories %}
