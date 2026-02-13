@@ -10,29 +10,56 @@ from django.contrib.auth.decorators import login_required
 from rango.forms import UserForm, UserProfileForm
 from django.http import HttpResponse
 
+from datetime import datetime
 
 
 
+
+from datetime import datetime
+from django.shortcuts import render
+
+from datetime import datetime
+from django.shortcuts import render
+from rango.models import Category, Page
 
 def index(request):
-   
     category_list = Category.objects.order_by('-likes')[:5]
-   
     page_list = Page.objects.order_by('-views')[:5]
 
     context_dict = {
-        'boldmessage': 'Crunchy, creamy, cookie, candy, cupcake!',
         'categories': category_list,
         'pages': page_list,
     }
 
-    return render(request, 'rango/index.html', context=context_dict)
+    visitor_cookie_handler(request)
 
+    response = render(request, 'rango/index.html', context=context_dict)
+    return response
 
 
 def about(request):
-    context_dict = {}
-    return render(request, 'rango/about.html', context=context_dict)
+    visitor_cookie_handler(request)
+    visits = request.session.get('visits', 1)
+
+    context_dict = {'visits': visits}
+    response = render(request, 'rango/about.html', context=context_dict)
+    return response
+
+
+def visitor_cookie_handler(request):
+    
+    visits = int(request.session.get('visits', 1))
+    last_visit_str = request.session.get('last_visit', str(datetime.now()))
+
+    last_visit_time = datetime.strptime(last_visit_str[:-7], '%Y-%m-%d %H:%M:%S')
+
+    if (datetime.now() - last_visit_time).days > 0:
+        visits += 1
+        request.session['last_visit'] = str(datetime.now())
+    else:
+        request.session['last_visit'] = last_visit_str
+
+    request.session['visits'] = visits
 
 
 
