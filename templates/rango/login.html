@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head><title>Login</title></head>
-<body>
-<h1>Login</h1>
+{% extends 'rango/base.html' %}
 
-{% if error_message %}
-<p><strong>{{ error_message }}</strong></p>
+{% block title_block %}Login{% endblock %}
+
+{% block body_block %}
+<h1>Login to Rango</h1>
+
+{% if error %}
+<strong>{{ error }}</strong><br />
 {% endif %}
 
 <form id="login_form" method="post" action="{% url 'rango:login' %}">
@@ -16,6 +17,5 @@
     <br />
     <input type="submit" value="submit" />
 </form>
+{% endblock %}
 
-</body>
-</html>

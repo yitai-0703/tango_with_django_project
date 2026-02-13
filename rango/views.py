@@ -11,6 +11,9 @@ from rango.forms import UserForm, UserProfileForm
 from django.http import HttpResponse
 
 
+
+
+
 def index(request):
    
     category_list = Category.objects.order_by('-likes')[:5]
@@ -48,6 +51,7 @@ def show_category(request, category_name_slug):
 
     return render(request, 'rango/category.html', context=context_dict)
 
+@login_required
 def add_category(request):
     form = CategoryForm()
 
@@ -63,7 +67,7 @@ def add_category(request):
     return render(request, 'rango/add_category.html', {'form': form})
 
 
-
+@login_required
 def add_page(request, category_name_slug):
     try:
         category = Category.objects.get(slug=category_name_slug)
@@ -95,31 +99,27 @@ def register(request):
 
         if user_form.is_valid() and profile_form.is_valid():
             user = user_form.save()
-            user.set_password(user.password)   # 关键：加密密码
+            user.set_password(user.password)
             user.save()
 
             profile = profile_form.save(commit=False)
             profile.user = user
 
-            # 如果用户上传了头像
             if 'picture' in request.FILES:
                 profile.picture = request.FILES['picture']
 
             profile.save()
-
             registered = True
         else:
-            # 表单无效，回显错误
-            pass
+            print(user_form.errors, profile_form.errors)
     else:
         user_form = UserForm()
         profile_form = UserProfileForm()
 
-    return render(request, 'rango/register.html', context={
-        'user_form': user_form,
-        'profile_form': profile_form,
-        'registered': registered
-    })
+    return render(request,
+              'rango/register.html',
+              context={'user_form': user_form, 'profile_form': profile_form, 'registered': registered})
+
 
 
 def user_login(request):
@@ -134,9 +134,9 @@ def user_login(request):
                 login(request, user)
                 return redirect(reverse('rango:index'))
             else:
-                return render(request, 'rango/login.html', {'error_message': 'Your Rango account is disabled.'})
+                return render(request, 'rango/login.html', {'error': 'Your account is disabled.'})
         else:
-            return render(request, 'rango/login.html', {'error_message': 'Invalid login details supplied.'})
+            return render(request, 'rango/login.html', {'error': 'Invalid login details supplied.'})
 
     return render(request, 'rango/login.html')
 
@@ -145,3 +145,8 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return redirect(reverse('rango:index'))
+
+
+@login_required
+def restricted(request):
+    return render(request, 'rango/restricted.html')
